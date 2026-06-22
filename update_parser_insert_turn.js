@@ -59,11 +59,28 @@ const KONSTRUKCIIA_MAP = {
   X: 'иная (***X)',
 };
 
+const RE_MAP = {
+  X0: 0.04,
+  '01': 0.1,
+  '02': 0.2,
+  '04': 0.4,
+  '08': 0.8,
+  12: 1.2,
+  16: 1.6,
+  20: 2,
+  24: 2.4,
+  28: 2.8,
+  32: 3.2,
+  '00': 'круглая пластина',
+  M0: 'круглая пластина',
+};
+
 const MAP = {
   shape: { startRow: 2, startCol: 3, data: SHAPE_MAP },
   material: { startRow: 2, startCol: 6, data: MATERIAL_MAP },
   m: { startRow: 2, startCol: 9, headers: ['Code', 'm1', 'm2', 'm3'], rows: M2_MAP },
   konstruktciia: { startRow: 2, startCol: 14, data: KONSTRUKCIIA_MAP },
+  re: { startRow: 2, startCol: 17, data: RE_MAP },
 };
 
 function alloyActive(row) {
@@ -99,14 +116,13 @@ function buildKonstruktciiaFormula(row) {
 }
 
 function buildReFormula(row) {
-  return `IF(A${row}="","",IFERROR(VALUE(MID(A${row},9,2))/10,""))`;
+  return `IF(A${row}="","",IFERROR(VLOOKUP(MID(A${row},9,2),Map!$R$2:$S$14,2,FALSE),""))`;
 }
 
 function parseRe(art) {
   if (!art || art.length < 10) return '';
   const code = art.slice(8, 10);
-  if (!/^\d{2}$/.test(code)) return '';
-  return Number(code) / 10;
+  return Object.prototype.hasOwnProperty.call(RE_MAP, code) ? RE_MAP[code] : '';
 }
 
 function parseShape(art) {
@@ -166,6 +182,10 @@ function setCell(ws, r, c, value) {
     delete ws[addr];
     return;
   }
+  if (typeof value === 'number') {
+    ws[addr] = { t: 'n', v: value };
+    return;
+  }
   ws[addr] = { t: 's', v: String(value) };
 }
 
@@ -205,7 +225,15 @@ function writeMapSheet(ws) {
     setCell(ws, row, MAP.konstruktciia.startCol + 1, label);
   });
 
-  ws['!ref'] = 'A1:P20';
+  setCell(ws, 0, MAP.re.startCol, 'Code');
+  setCell(ws, 0, MAP.re.startCol + 1, 're');
+  Object.entries(RE_MAP).forEach(([code, label], index) => {
+    const row = MAP.re.startRow - 1 + index;
+    setCell(ws, row, MAP.re.startCol, code);
+    setCell(ws, row, MAP.re.startCol + 1, label);
+  });
+
+  ws['!ref'] = 'A1:S20';
 }
 
 const wb = XLSX.readFile(FILE, { cellFormula: true });
@@ -237,7 +265,8 @@ for (let row = 2; row <= LAST_ROW; row += 1) {
   const parsed = parseAlloy(String(alloy));
   const reValue = parseRe(artStr);
 
-  setFormulaCell(ws, `F${row}`, buildReFormula(row), reValue === '' ? '' : reValue);
+  const reCellValue = reValue === '' ? '' : reValue;
+  setFormulaCell(ws, `F${row}`, buildReFormula(row), reCellValue);
 
   const values = [
     parseShape(String(art)),

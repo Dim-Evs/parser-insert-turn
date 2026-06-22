@@ -1,0 +1,16 @@
+[
+  { "code": "Code", "value": "re" },
+  { "code": "X0", "value": 0.04 },
+  { "code": "01", "value": 0.1 },
+  { "code": "02", "value": 0.2 },
+  { "code": "04", "value": 0.4 },
+  { "code": "08", "value": 0.8 },
+  { "code": "12", "value": 1.2 },
+  { "code": "16", "value": 1.6 },
+  { "code": "20", "value": 2 },
+  { "code": "24", "value": 2.4 },
+  { "code": "28", "value": 2.8 },
+  { "code": "32", "value": 3.2 },
+  { "code": "00", "value": "круглая пластина" },
+  { "code": "M0", "value": "круглая пластина" }
+]
