@@ -98,6 +98,17 @@ function buildKonstruktciiaFormula(row) {
   return `IF(A${row}="","",IFERROR(VLOOKUP(MID(A${row},4,1),Map!$O$2:$P$10,2,FALSE),""))`;
 }
 
+function buildReFormula(row) {
+  return `IF(A${row}="","",IFERROR(VALUE(MID(A${row},9,2))/10,""))`;
+}
+
+function parseRe(art) {
+  if (!art || art.length < 10) return '';
+  const code = art.slice(8, 10);
+  if (!/^\d{2}$/.test(code)) return '';
+  return Number(code) / 10;
+}
+
 function parseShape(art) {
   if (!art) return '';
   return SHAPE_MAP[art[0]] || '';
@@ -141,6 +152,10 @@ function setFormulaCell(ws, addr, formula, value) {
   const close = (formula.match(/\)/g) || []).length;
   if (open !== close) {
     throw new Error(`Unbalanced formula at ${addr}: (${open} vs ${close}) ${formula}`);
+  }
+  if (typeof value === 'number') {
+    ws[addr] = { t: 'n', f: formula, v: value };
+    return;
   }
   ws[addr] = { t: 's', f: formula, v: value };
 }
@@ -193,7 +208,7 @@ function writeMapSheet(ws) {
   ws['!ref'] = 'A1:P20';
 }
 
-const wb = XLSX.readFile(FILE, { cellFormula: true, cellStyles: true });
+const wb = XLSX.readFile(FILE, { cellFormula: true });
 const ws = wb.Sheets[SHEET];
 const mapWs = wb.Sheets[MAP_SHEET];
 
@@ -218,7 +233,12 @@ headers.forEach(({ col, name }) => {
 for (let row = 2; row <= LAST_ROW; row += 1) {
   const art = ws[`A${row}`]?.v || '';
   const alloy = ws[`H${row}`]?.v || '';
+  const artStr = String(art);
   const parsed = parseAlloy(String(alloy));
+  const reValue = parseRe(artStr);
+
+  setFormulaCell(ws, `F${row}`, buildReFormula(row), reValue === '' ? '' : reValue);
+
   const values = [
     parseShape(String(art)),
     parsed.m1,
@@ -261,7 +281,9 @@ for (const row of [2, 3, 4]) {
   console.log(
     row,
     art,
-    '=> shape:',
+    '=> re:',
+    parseRe(String(art)),
+    'shape:',
     parseShape(String(art)),
     'konstr:',
     parseKonstruktciia(String(art)),

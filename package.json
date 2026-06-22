@@ -4,7 +4,8 @@
   "description": "Excel parser for turning insert article codes",
   "main": "update_parser_insert_turn.js",
   "scripts": {
-    "update": "node update_parser_insert_turn.js"
+    "update": "node update_parser_insert_turn.js",
+    "update:re": "powershell -ExecutionPolicy Bypass -File ./update_re_column.ps1"
   },
   "keywords": ["excel", "parser", "insert", "turning"],
   "author": "",
