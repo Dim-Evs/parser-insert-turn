@@ -15,14 +15,18 @@ try {
   $parserSheet = $workbook.Worksheets.Item('Parser')
   $mapSheet = $workbook.Worksheets.Item('Map')
 
+  $mapSheet.Columns.Item(18).NumberFormat = '@'
+
   for ($i = 0; $i -lt $reMap.Count; $i++) {
     $row = $i + 1
-    $mapSheet.Cells.Item($row, 18).Value2 = [string]$reMap[$i].code
+    $codeCell = $mapSheet.Cells.Item($row, 18)
+    $valueCell = $mapSheet.Cells.Item($row, 19)
+    $codeCell.Value2 = [string]$reMap[$i].code
     $value = $reMap[$i].value
     if ($value -is [string]) {
-      $mapSheet.Cells.Item($row, 19).Value2 = $value
+      $valueCell.Value2 = $value
     } else {
-      $mapSheet.Cells.Item($row, 19).Value2 = [double]$value
+      $valueCell.Value2 = [double]$value
     }
   }
 
