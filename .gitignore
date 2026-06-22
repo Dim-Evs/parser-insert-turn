@@ -1,0 +1,4 @@
+node_modules/
+~$*.xlsx
+parser_insert_turn_fixed.xlsx
+*.log

@@ -1,0 +1,15 @@
+{
+  "name": "parser-insert-turn",
+  "version": "1.0.0",
+  "description": "Excel parser for turning insert article codes",
+  "main": "update_parser_insert_turn.js",
+  "scripts": {
+    "update": "node update_parser_insert_turn.js"
+  },
+  "keywords": ["excel", "parser", "insert", "turning"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
