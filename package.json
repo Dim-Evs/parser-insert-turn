@@ -5,7 +5,8 @@
   "main": "update_parser_insert_turn.js",
   "scripts": {
     "update": "node update_parser_insert_turn.js",
-    "update:re": "powershell -ExecutionPolicy Bypass -File ./update_re_column.ps1"
+    "update:re": "powershell -ExecutionPolicy Bypass -File ./update_re_column.ps1",
+    "update:zadnii-ugol": "powershell -ExecutionPolicy Bypass -File ./update_zadnii_ugol_column.ps1"
   },
   "keywords": ["excel", "parser", "insert", "turning"],
   "author": "",

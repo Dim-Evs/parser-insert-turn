@@ -1,0 +1,14 @@
+[
+  { "code": "Code", "value": "Zadnii_ugol" },
+  { "code": "N", "value": "0°" },
+  { "code": "A", "value": "3°" },
+  { "code": "B", "value": "5°" },
+  { "code": "C", "value": "7°" },
+  { "code": "P", "value": "11°" },
+  { "code": "p", "value": "11°" },
+  { "code": "D", "value": "15°" },
+  { "code": "E", "value": "20°" },
+  { "code": "F", "value": "25°" },
+  { "code": "G", "value": "30°" },
+  { "code": "O", "value": "другой угол" }
+]

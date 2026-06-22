@@ -75,12 +75,27 @@ const RE_MAP = {
   M0: 'круглая пластина',
 };
 
+const ZADNII_UGOL_MAP = {
+  N: '0°',
+  A: '3°',
+  B: '5°',
+  C: '7°',
+  P: '11°',
+  p: '11°',
+  D: '15°',
+  E: '20°',
+  F: '25°',
+  G: '30°',
+  O: 'другой угол',
+};
+
 const MAP = {
   shape: { startRow: 2, startCol: 3, data: SHAPE_MAP },
   material: { startRow: 2, startCol: 6, data: MATERIAL_MAP },
   m: { startRow: 2, startCol: 9, headers: ['Code', 'm1', 'm2', 'm3'], rows: M2_MAP },
   konstruktciia: { startRow: 2, startCol: 14, data: KONSTRUKCIIA_MAP },
   re: { startRow: 2, startCol: 17, data: RE_MAP },
+  zadniiUgol: { startRow: 2, startCol: 20, data: ZADNII_UGOL_MAP },
 };
 
 function alloyActive(row) {
@@ -123,6 +138,16 @@ function parseRe(art) {
   if (!art || art.length < 10) return '';
   const code = art.slice(8, 10);
   return Object.prototype.hasOwnProperty.call(RE_MAP, code) ? RE_MAP[code] : '';
+}
+
+function buildZadniiUgolFormula(row) {
+  return `IF(A${row}="","",IFERROR(VLOOKUP(MID(A${row},2,1),Map!$U$2:$V$12,2,FALSE),""))`;
+}
+
+function parseZadniiUgol(art) {
+  if (!art || art.length < 2) return '';
+  const code = art[1];
+  return ZADNII_UGOL_MAP[code] || '';
 }
 
 function parseShape(art) {
@@ -233,7 +258,15 @@ function writeMapSheet(ws) {
     setCell(ws, row, MAP.re.startCol + 1, label);
   });
 
-  ws['!ref'] = 'A1:S20';
+  setCell(ws, 0, MAP.zadniiUgol.startCol, 'Code');
+  setCell(ws, 0, MAP.zadniiUgol.startCol + 1, 'Zadnii_ugol');
+  Object.entries(ZADNII_UGOL_MAP).forEach(([code, label], index) => {
+    const row = MAP.zadniiUgol.startRow - 1 + index;
+    setCell(ws, row, MAP.zadniiUgol.startCol, code);
+    setCell(ws, row, MAP.zadniiUgol.startCol + 1, label);
+  });
+
+  ws['!ref'] = 'A1:V20';
 }
 
 const wb = XLSX.readFile(FILE, { cellFormula: true });
@@ -252,6 +285,7 @@ const headers = [
   { col: 14, name: 'm6' },
   { col: 15, name: 'Material_plastiny' },
   { col: 16, name: 'Konstruktciia_plastiny' },
+  { col: 17, name: 'Zadnii_ugol' },
 ];
 
 headers.forEach(({ col, name }) => {
@@ -278,6 +312,7 @@ for (let row = 2; row <= LAST_ROW; row += 1) {
     parsed.m6,
     parsed.Material_plastiny,
     parseKonstruktciia(String(art)),
+    parseZadniiUgol(String(art)),
   ];
   const formulas = [
     buildShapeFormula(row),
@@ -289,6 +324,7 @@ for (let row = 2; row <= LAST_ROW; row += 1) {
     buildEmptyAlloyFormula(row),
     buildMaterialFormula(row),
     buildKonstruktciiaFormula(row),
+    buildZadniiUgolFormula(row),
   ];
 
   formulas.forEach((formula, index) => {
@@ -297,7 +333,7 @@ for (let row = 2; row <= LAST_ROW; row += 1) {
   });
 }
 
-ws['!ref'] = `A1:Q${LAST_ROW}`;
+ws['!ref'] = `A1:R${LAST_ROW}`;
 
 XLSX.writeFile(wb, OUT_FILE);
 
@@ -316,6 +352,8 @@ for (const row of [2, 3, 4]) {
     parseShape(String(art)),
     'konstr:',
     parseKonstruktciia(String(art)),
+    'zadnii:',
+    parseZadniiUgol(String(art)),
     'alloy:',
     parseAlloy(String(alloy)),
   );
